@@ -12,10 +12,12 @@ The best documentation is easy examples, right? :-)
 
 ### Functions
 
-- #### svg 
-    offering comfortably using svg images in templates, example: ```{{ svg('awesome_icon.svg') }}``` when file is stored in "/your-theme-name/images/awesome_icon.svg" and source code of svg will be printed to page as is. This solution is quick and you can use CSS features like ".your-div svg {fill: red}" etc.
+#### svg
+offering comfortably using svg images in templates, example: ```{{ svg('awesome_icon.svg') }}``` when file is stored in "/your-theme-name/images/awesome_icon.svg" and source code of svg will be printed to page as is. This solution is quick and you can use CSS features like ".your-div svg {fill: red}" etc.
+
+------
 
 ### Filters
 
-- ### naked_field
-    return rendered field, for example from view, without developers suggestions (<!-- Hook: etc --->), without HTML tags like <a href="#">. Just naked string what you can use as class, data attribute or in twig condition! Using example: `{% set badge = content.field_show_badge|naked_field %}`
+#### naked_field
+return rendered field, for example from view, without developers suggestions (<!-- Hook: etc --->), without HTML tags like <a href="#">. Just naked string what you can use as class, data attribute or in twig condition! Using example: `{% set badge = content.field_show_badge|naked_field %}`
