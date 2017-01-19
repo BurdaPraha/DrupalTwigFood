@@ -1,0 +1,5 @@
+name: Burda Twig Food
+description: Useful functions, filters for twig
+package: Custom
+type: module
+core: 8.x

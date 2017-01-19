@@ -1,0 +1,18 @@
+{
+  "name": "burdapraha/drupal_twig_food",
+  "description": ".",
+  "type": "drupal-module",
+  "authors": [
+    {
+      "name": "Michal Landsman",
+      "email": "michal.landsman@burda.cz"
+    }
+  ],
+  "homepage": "https://github.com/BurdaPraha/DrupalTwigFood",
+  "support": {
+    "issues": "https://github.com/BurdaPraha/DrupalTwigFood/issues"
+  },
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev",
+  "require": {}
+}
