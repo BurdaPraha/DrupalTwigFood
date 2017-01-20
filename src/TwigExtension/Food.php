@@ -53,7 +53,8 @@ class Food extends \Twig_Extension
     /**
      * Generates a list of all Twig filters that this extension defines.
      */
-    public function getFilters() {
+    public function getFilters()
+    {
         return array(
             new \Twig_SimpleFilter('naked_field', array($this, 'renderNakedField')),
             new \Twig_SimpleFilter('max_length', array($this, 'renderWithMaxLength')),
