@@ -56,6 +56,7 @@ class Food extends \Twig_Extension
     public function getFilters() {
         return array(
             new \Twig_SimpleFilter('naked_field', array($this, 'renderNakedField')),
+            new \Twig_SimpleFilter('max_length', array($this, 'renderWithMaxLength')),
         );
     }
 
@@ -90,5 +91,27 @@ class Food extends \Twig_Extension
         $naked = strip_tags(str_replace(array("\n", "\r"), '', $withoutComments));
 
         return $naked;
+    }
+
+    /**
+     * Check string length and return him summary or in original
+     * @param $string
+     * @param int $max Max. length of string
+     * @param bool|true $dots add "..." after summary string
+     * @return string
+     */
+    public function renderWithMaxLength($string, $max = 0, $dots = true)
+    {
+        $field = $this->renderNakedField($string);
+
+        if(strlen($field) > $max && $max > 0)
+        {
+            $break  = "*-*-*";
+            $wrap   = wordwrap($field, $max, $break);
+            $items  = explode($break, $wrap);
+            $string = (isset($items[0]) ? $items[0] : "") . ($dots ? "..." : "");
+        }
+
+        return $string;
     }
 }
