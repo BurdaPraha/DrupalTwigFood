@@ -12,22 +12,14 @@ use Drupal\Core\Template\TwigExtension;
  */
 class Food extends \Twig_Extension
 {
-
     /**
      * The entity type manager.
-     *
      * @var \Drupal\Core\Entity\EntityTypeManagerInterface
      */
     protected $entityTypeManager;
 
     /**
-     * The renderer.
      *
-     * @var \Drupal\Core\Render\RendererInterface
-     */
-    protected $renderer;
-
-    /**
      * @var TwigExtension
      */
     protected $coreTwigExtension;
@@ -45,7 +37,7 @@ class Food extends \Twig_Extension
     {
         $this->entityTypeManager = $entity_type_manager;
         $this->coreTwigExtension = new TwigExtension($renderer);
-        $this->themeName = \Drupal::theme()->getActiveTheme()->getName();
+        $this->themeName         = \Drupal::theme()->getActiveTheme()->getName();
     }
 
     /**
@@ -63,8 +55,8 @@ class Food extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('svg', array($this, 'renderSVG'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('load_block', [$this, 'loadBlock']),
+            new \Twig_SimpleFunction('svg',         [$this, 'renderSVG'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('load_block',  [$this, 'loadBlock']),
             new \Twig_SimpleFunction('load_region', [$this, 'loadRegion']),
         );
     }
@@ -75,8 +67,8 @@ class Food extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('naked_field', array($this, 'renderNakedField')),
-            new \Twig_SimpleFilter('max_length', array($this, 'renderWithMaxLength')),
+            new \Twig_SimpleFilter('naked_field', [$this, 'renderNakedField']),
+            new \Twig_SimpleFilter('max_length',  [$this, 'renderWithMaxLength']),
         );
     }
 
@@ -87,11 +79,10 @@ class Food extends \Twig_Extension
      */
     public function renderSVG($path)
     {
-        $theme = drupal_get_path("theme", $this->themeName);
-        $fullPath = "{$theme}/images/{$path}";
-
-        $handle = fopen($fullPath, "r");
-        $contents = fread($handle, filesize($fullPath));
+        $theme      = drupal_get_path("theme", $this->themeName);
+        $fullPath   = "{$theme}/images/{$path}";
+        $handle     = fopen($fullPath, "r");
+        $contents   = fread($handle, filesize($fullPath));
         fclose($handle);
 
         return $contents;
@@ -106,9 +97,9 @@ class Food extends \Twig_Extension
     */
     public function renderNakedField($string)
     {
-        $rendered = $this->coreTwigExtension->renderVar($string);
+        $rendered        = $this->coreTwigExtension->renderVar($string);
         $withoutComments = preg_replace('/<!--(.|\s)*?-->/', '', $rendered);
-        $naked = strip_tags(str_replace(array("\n", "\r"), '', $withoutComments));
+        $naked           = strip_tags(str_replace(["\n", "\r"], '', $withoutComments));
 
         return $naked;
     }
@@ -153,9 +144,12 @@ class Food extends \Twig_Extension
      */
     public function loadRegion($id)
     {
-        $blocks = $this->entityTypeManager->getStorage('block')
-                                          ->loadByProperties(['region' => $id, 'theme' => $this->themeName]);
-        $result = array();
+        $blocks = $this->entityTypeManager->getStorage('block')->loadByProperties([
+            'region' => $id,
+            'theme'  => $this->themeName
+        ]);
+
+        $result = [];
         foreach($blocks as $id => $values)
         {
             $result[] = $this->loadBlock($id);
