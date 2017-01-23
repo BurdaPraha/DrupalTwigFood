@@ -2,6 +2,7 @@
 
 namespace Drupal\twig_food\TwigExtension;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Template\TwigExtension;
 
@@ -11,6 +12,14 @@ use Drupal\Core\Template\TwigExtension;
  */
 class Food extends \Twig_Extension
 {
+
+    /**
+     * The entity type manager.
+     *
+     * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+     */
+    protected $entityTypeManager;
+
     /**
      * The renderer.
      *
@@ -18,17 +27,25 @@ class Food extends \Twig_Extension
      */
     protected $renderer;
 
-    protected $twigExtension;
+    /**
+     * @var TwigExtension
+     */
+    protected $coreTwigExtension;
 
     /**
-     * Constructs \Drupal\Core\Template\TwigExtension.
-     *
-     * @param \Drupal\Core\Render\RendererInterface $renderer
-     *   The renderer.
+     * @var string
      */
-    public function __construct(RendererInterface $renderer)
+    protected $themeName;
+
+    /**
+     * @param EntityTypeManagerInterface $entity_type_manager
+     * @param RendererInterface $renderer
+     */
+    public function __construct(EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer)
     {
-        $this->twigExtension = new TwigExtension($renderer);
+        $this->entityTypeManager = $entity_type_manager;
+        $this->coreTwigExtension = new TwigExtension($renderer);
+        $this->themeName = \Drupal::theme()->getActiveTheme()->getName();
     }
 
     /**
@@ -46,7 +63,9 @@ class Food extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('svg', array($this, 'renderSVG'), array('is_safe' => array('html')))
+            new \Twig_SimpleFunction('svg', array($this, 'renderSVG'), array('is_safe' => array('html'))),
+            new \Twig_SimpleFunction('load_block', [$this, 'loadBlock']),
+            new \Twig_SimpleFunction('load_region', [$this, 'loadRegion']),
         );
     }
 
@@ -68,7 +87,7 @@ class Food extends \Twig_Extension
      */
     public function renderSVG($path)
     {
-        $theme = drupal_get_path("theme", \Drupal::theme()->getActiveTheme()->getName());
+        $theme = drupal_get_path("theme", $this->themeName);
         $fullPath = "{$theme}/images/{$path}";
 
         $handle = fopen($fullPath, "r");
@@ -87,7 +106,7 @@ class Food extends \Twig_Extension
     */
     public function renderNakedField($string)
     {
-        $rendered = $this->twigExtension->renderVar($string);
+        $rendered = $this->coreTwigExtension->renderVar($string);
         $withoutComments = preg_replace('/<!--(.|\s)*?-->/', '', $rendered);
         $naked = strip_tags(str_replace(array("\n", "\r"), '', $withoutComments));
 
@@ -115,4 +134,34 @@ class Food extends \Twig_Extension
 
         return $string;
     }
+
+    /**
+     * Return array of selected block
+     * @param $id string
+     * @return array|string
+     */
+    public function loadBlock($id)
+    {
+        $block = $this->entityTypeManager->getStorage('block')->load($id);
+        return $block ? $this->entityTypeManager->getViewBuilder('block')->view($block) : '';
+    }
+
+    /**
+     * Render region by id
+     * @param $id
+     * @return array
+     */
+    public function loadRegion($id)
+    {
+        $blocks = $this->entityTypeManager->getStorage('block')
+                                          ->loadByProperties(['region' => $id, 'theme' => $this->themeName]);
+        $result = array();
+        foreach($blocks as $id => $values)
+        {
+            $result[] = $this->loadBlock($id);
+        }
+
+        return $result;
+    }
+
 }
