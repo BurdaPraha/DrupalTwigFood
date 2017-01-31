@@ -1,6 +1,6 @@
 {
   "name": "burdapraha/drupal_twig_food",
-  "description": ".",
+  "description": "Useful functions, filters for twig @ Drupal 8",
   "type": "drupal-module",
   "authors": [
     {

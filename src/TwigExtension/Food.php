@@ -55,9 +55,10 @@ class Food extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('svg',         [$this, 'renderSVG'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('load_block',  [$this, 'loadBlock']),
-            new \Twig_SimpleFunction('load_region', [$this, 'loadRegion']),
+            new \Twig_SimpleFunction('svg',             [$this, 'renderSVG'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('load_block',      [$this, 'loadBlock']),
+            new \Twig_SimpleFunction('load_region',     [$this, 'loadRegion']),
+            new \Twig_SimpleFunction('get_main_node',   [$this, 'getMainNode']),
         );
     }
 
@@ -156,6 +157,22 @@ class Food extends \Twig_Extension
         }
 
         return $result;
+    }
+
+    /**
+     * Load main node object anywhere
+     * @param bool|true $returnId
+     * @return mixed|null
+     */
+    public function getMainNode($returnId = true)
+    {
+        $node = \Drupal::routeMatch()->getParameter('node');
+        if ($node)
+        {
+            return $returnId ? $node->id() : $node;
+        }
+
+        return null;
     }
 
 }

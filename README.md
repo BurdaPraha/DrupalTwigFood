@@ -21,6 +21,9 @@ you can call block by name anywhere in template: ```{{ load_block('machine_name'
 #### load_region($id)
 this function offers print all block of the region anywhere you need: ```{{ load_region('machine_name') }}```
 
+#### load_main_node($returnId = true)
+solving problem with getting node id from anywhere template when you need it
+
 ------
 
 ### Filters
@@ -28,5 +31,5 @@ this function offers print all block of the region anywhere you need: ```{{ load
 #### naked_field
 return rendered field, for example from view, without developers suggestions (```<!-- Hook: etc --->```), without HTML tags like `<a href="xy">your_filed</a>`. Just naked string what you can use as class, data attribute or in twig condition! Using example: `{% set badge = content.field_show_badge|naked_field %}`
 
-#### max_length(20, false)
+#### max_length($max = 0, $dots = true)
 Check string length and return him summary or in original. It is pretty alternative to ugly ```{{ teaser_text|length > 90 ? teaser_text|slice(0, 90) ~ ' ...' : teaser_text }}```. By second parameter you can disable adding "..." to the end of string.
