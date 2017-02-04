@@ -21,8 +21,8 @@ you can call block by name anywhere in template: ```{{ load_block('machine_name'
 #### load_region($id)
 this function offers print all block of the region anywhere you need: ```{{ load_region('machine_name') }}```
 
-#### load_main_node($returnId = true)
-solving problem with getting node id from anywhere template when you need it
+#### get_main_node($returnId = true)
+solving problem with getting node id from anywhere template when you need it. You can get all node object or only her id (by default).
 
 ------
 
