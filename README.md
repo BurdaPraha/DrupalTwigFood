@@ -28,7 +28,7 @@ solving problem with getting node id from anywhere template when you need it ```
 returning array with previous media gallery: ```{{ load_gallery_prev(2) }}```
 
 #### - load_gallery_next($currentGalleryId, $thumbnailStyle = 'thumbnail')
-returning array with next media media: ```{{ load_gallery_prev(1) }}```
+returning array with next media media: ```{{ load_gallery_next(1) }}```
 
 ------
 
