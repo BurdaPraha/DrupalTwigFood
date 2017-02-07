@@ -22,7 +22,13 @@ you can call block by name anywhere in template: ```{{ load_block('machine_name'
 this function offers print all block of the region anywhere you need: ```{{ load_region('machine_name') }}```
 
 #### load_main_node($returnId = true)
-solving problem with getting node id from anywhere template when you need it
+solving problem with getting node id from anywhere template when you need it ```{{ load_main_node() }}```
+
+#### load_gallery_prev($currentGalleryId, $thumbnailImageStyle = 'thumbnail')
+returning array with previous media gallery: ```{{ load_gallery_prev(2) }}```
+
+#### load_gallery_next($currentGalleryId, $thumbnailImageStyle = 'thumbnail')
+returning array with next media media: ```{{ load_gallery_prev(1) }}```
 
 ------
 

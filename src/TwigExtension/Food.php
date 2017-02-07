@@ -2,9 +2,12 @@
 
 namespace Drupal\twig_food\TwigExtension;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Template\TwigExtension;
+use Drupal\Core\Entity\EntityTypeManagerInterface,
+    Drupal\Core\Render\RendererInterface,
+    Drupal\Core\Template\TwigExtension,
+    Drupal\image\Entity\ImageStyle,
+    Drupal\file\Entity\File,
+    Drupal\media_entity\Entity\Media;
 
 /**
  * @package Twig Food
@@ -14,12 +17,11 @@ class Food extends \Twig_Extension
 {
     /**
      * The entity type manager.
-     * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+     * @var EntityTypeManagerInterface
      */
     protected $entityTypeManager;
 
     /**
-     *
      * @var TwigExtension
      */
     protected $coreTwigExtension;
@@ -55,10 +57,12 @@ class Food extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('svg',             [$this, 'renderSVG'], ['is_safe' => ['html']]),
-            new \Twig_SimpleFunction('load_block',      [$this, 'loadBlock']),
-            new \Twig_SimpleFunction('load_region',     [$this, 'loadRegion']),
-            new \Twig_SimpleFunction('get_main_node',   [$this, 'getMainNode']),
+            new \Twig_SimpleFunction('svg',                 [$this, 'renderSVG'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('load_block',          [$this, 'loadBlock']),
+            new \Twig_SimpleFunction('load_region',         [$this, 'loadRegion']),
+            new \Twig_SimpleFunction('get_main_node',       [$this, 'getMainNode']),
+            new \Twig_SimpleFunction('load_gallery_prev',   [$this, 'loadGalleryPrev']),
+            new \Twig_SimpleFunction('load_gallery_next',   [$this, 'loadGalleryNext']),
         );
     }
 
@@ -160,6 +164,28 @@ class Food extends \Twig_Extension
     }
 
     /**
+     * Prev gallery
+     * @param $id
+     * @param string $thumbnail
+     * @return array|null
+     */
+    public function loadGalleryPrev($id, $thumbnail = 'thumbnail')
+    {
+        return $this->getMediaData($id, '<', 'DESC', $thumbnail);
+    }
+
+    /**
+     * Next gallery
+     * @param $id
+     * @param string $thumbnail
+     * @return array|null
+     */
+    public function loadGalleryNext($id, $thumbnail = 'thumbnail')
+    {
+        return $this->getMediaData($id, '>', 'ASC', $thumbnail);
+    }
+
+    /**
      * Load main node object anywhere
      * @param bool|true $returnId
      * @return mixed|null
@@ -173,6 +199,59 @@ class Food extends \Twig_Extension
         }
 
         return null;
+    }
+
+    /**
+     * Load one gallery
+     * @param $currentId
+     * @param $dateComparator
+     * @param $sortOrder
+     * @param $thumbnail
+     * @return array|null
+     */
+    public function getMediaData($currentId, $dateComparator, $sortOrder, $thumbnail)
+    {
+        /**
+         * @var \Drupal\media_entity\Entity\Media
+         */
+        $current = $this->entityTypeManager
+                        ->getStorage('media')
+                        ->load($currentId);
+
+        if(!$current)
+        {
+            return null;
+        }
+
+        $prev_or_next = \Drupal::entityQuery('media')
+            ->condition('bundle', $current->bundle())
+            ->condition('status', 1)
+            ->condition('created', $current->getCreatedTime(), $dateComparator)
+            ->sort('created', $sortOrder)
+            ->range(0, 1)
+            ->execute();
+
+        if(!$prev_or_next)
+        {
+            return null;
+        }
+
+        $gallery = $this->entityTypeManager
+                        ->getStorage('media')
+                        ->load(array_values($prev_or_next)[0]);
+
+        $all    = $gallery->get('field_media_images');
+        $first  = $all[0]->entity->id();
+        $file   = File::load($first)->getFileUri();
+        $thumb  = ImageStyle::load($thumbnail)->buildUrl($file);
+
+        return [
+            'id'        => $gallery->id(),
+            'title'     => $gallery->label(),
+            'path'      => $gallery->toUrl()->toString(),
+            'images'    => $all,
+            'thumb'     => $thumb
+        ];
     }
 
 }
