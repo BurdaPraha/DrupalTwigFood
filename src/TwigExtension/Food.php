@@ -195,8 +195,8 @@ class Food extends \Twig_Extension
     public function loadGalleryThumbs($id, $thumbnail = 'thumbnail')
     {
         $gallery = $this->entityTypeManager
-            ->getStorage('media')
-            ->load($id);
+                        ->getStorage('media')
+                        ->load($id);
 
         $images = $gallery->get('field_media_images');
 
@@ -205,14 +205,16 @@ class Food extends \Twig_Extension
             $result = [];
             foreach($images as $image)
             {
-                $id   = $image->entity->id();
-                $file = $this->entityTypeManager->getStorage("file")->load($id);
+                $mid        = $image->entity->id();
+                $fileEntity = $image->entity->field_image->entity;
+                $fid        = $image->entity->field_image->entity->id();
+                $imageUrl   = $fileEntity->getFileUri();
 
-                if($file) // if file is null, todo: check this bug
-                {
-                    $fileUrl     = $file->getFileUri();
-                    $result[$id] = ImageStyle::load($thumbnail)->buildUrl($fileUrl);
-                }
+                $result[] = [
+                    'mid'   => $mid,
+                    'fid'   => $fid,
+                    'thumb' => ImageStyle::load($thumbnail)->buildUrl($imageUrl),
+                ];
             }
 
             return $result;
@@ -251,8 +253,8 @@ class Food extends \Twig_Extension
          * @var \Drupal\media_entity\Entity\Media
          */
         $current = $this->entityTypeManager
-            ->getStorage('media')
-            ->load($currentId);
+                        ->getStorage('media')
+                        ->load($currentId);
 
         if(!$current)
         {
@@ -277,16 +279,14 @@ class Food extends \Twig_Extension
             ->load(array_values($prev_or_next)[0]);
 
         $all    = $gallery->get('field_media_images');
-        $first  = $all[0]->entity->id();
-        $file   = File::load($first)->getFileUri();
-        $thumb  = ImageStyle::load($thumbnail)->buildUrl($file);
+        $file   = $all[0]->entity->field_image->entity->getFileUri();
 
         return [
             'id'        => $gallery->id(),
             'title'     => $gallery->label(),
             'path'      => $gallery->toUrl()->toString(),
             'images'    => $all,
-            'thumb'     => $thumb
+            'thumb'     => ImageStyle::load($thumbnail)->buildUrl($file)
         ];
     }
 
