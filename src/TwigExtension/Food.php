@@ -56,14 +56,15 @@ class Food extends \Twig_Extension
      */
     public function getFunctions()
     {
-        return array(
+        return [
             new \Twig_SimpleFunction('svg',                 [$this, 'renderSVG'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('load_block',          [$this, 'loadBlock']),
             new \Twig_SimpleFunction('load_region',         [$this, 'loadRegion']),
             new \Twig_SimpleFunction('get_main_node',       [$this, 'getMainNode']),
             new \Twig_SimpleFunction('load_gallery_prev',   [$this, 'loadGalleryPrev']),
             new \Twig_SimpleFunction('load_gallery_next',   [$this, 'loadGalleryNext']),
-        );
+            new \Twig_SimpleFunction('load_gallery_thumbs', [$this, 'loadGalleryThumbs']),
+        ];
     }
 
     /**
@@ -71,10 +72,10 @@ class Food extends \Twig_Extension
      */
     public function getFilters()
     {
-        return array(
+        return [
             new \Twig_SimpleFilter('naked_field', [$this, 'renderNakedField']),
             new \Twig_SimpleFilter('max_length',  [$this, 'renderWithMaxLength']),
-        );
+        ];
     }
 
     /**
@@ -99,7 +100,7 @@ class Food extends \Twig_Extension
      * will be returned the output ABCD after using the the following function.
      * @param string $string A string, which have html comments.
      * @return string A string, which have no html comments.
-    */
+     */
     public function renderNakedField($string)
     {
         $rendered        = $this->coreTwigExtension->renderVar($string);
@@ -186,6 +187,41 @@ class Food extends \Twig_Extension
     }
 
     /**
+     * Load gallery images
+     * @param $id
+     * @param string $thumbnail
+     * @return array
+     */
+    public function loadGalleryThumbs($id, $thumbnail = 'thumbnail')
+    {
+        $gallery = $this->entityTypeManager
+            ->getStorage('media')
+            ->load($id);
+
+        $images = $gallery->get('field_media_images');
+
+        if($images)
+        {
+            $result = [];
+            foreach($images as $image)
+            {
+                $id   = $image->entity->id();
+                $file = $this->entityTypeManager->getStorage("file")->load($id);
+
+                if($file) // if file is null, todo: check this bug
+                {
+                    $fileUrl     = $file->getFileUri();
+                    $result[$id] = ImageStyle::load($thumbnail)->buildUrl($fileUrl);
+                }
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    /**
      * Load main node object anywhere
      * @param bool|true $returnId
      * @return mixed|null
@@ -215,8 +251,8 @@ class Food extends \Twig_Extension
          * @var \Drupal\media_entity\Entity\Media
          */
         $current = $this->entityTypeManager
-                        ->getStorage('media')
-                        ->load($currentId);
+            ->getStorage('media')
+            ->load($currentId);
 
         if(!$current)
         {
@@ -237,8 +273,8 @@ class Food extends \Twig_Extension
         }
 
         $gallery = $this->entityTypeManager
-                        ->getStorage('media')
-                        ->load(array_values($prev_or_next)[0]);
+            ->getStorage('media')
+            ->load(array_values($prev_or_next)[0]);
 
         $all    = $gallery->get('field_media_images');
         $first  = $all[0]->entity->id();
