@@ -64,6 +64,7 @@ class Food extends \Twig_Extension
             new \Twig_SimpleFunction('load_gallery_prev',   [$this, 'loadGalleryPrev']),
             new \Twig_SimpleFunction('load_gallery_next',   [$this, 'loadGalleryNext']),
             new \Twig_SimpleFunction('load_gallery_thumbs', [$this, 'loadGalleryThumbs']),
+            new \Twig_SimpleFunction('view_embed',          [$this, 'viewEmbed']),
         ];
     }
 
@@ -195,8 +196,8 @@ class Food extends \Twig_Extension
     public function loadGalleryThumbs($id, $thumbnail = 'thumbnail')
     {
         $gallery = $this->entityTypeManager
-                        ->getStorage('media')
-                        ->load($id);
+            ->getStorage('media')
+            ->load($id);
 
         $images = $gallery->get('field_media_images');
 
@@ -253,8 +254,8 @@ class Food extends \Twig_Extension
          * @var \Drupal\media_entity\Entity\Media
          */
         $current = $this->entityTypeManager
-                        ->getStorage('media')
-                        ->load($currentId);
+            ->getStorage('media')
+            ->load($currentId);
 
         if(!$current)
         {
@@ -288,6 +289,26 @@ class Food extends \Twig_Extension
             'images'    => $all,
             'thumb'     => ImageStyle::load($thumbnail)->buildUrl($file)
         ];
+    }
+
+    /**
+     * @param $viewName
+     * @param $displayId
+     * @return string
+     */
+    public function viewEmbed($viewName, $displayId)
+    {
+        if($viewName && $displayId)
+        {
+            $result = views_embed_view($viewName, $displayId);
+            if($result)
+            {
+                return $this->coreTwigExtension->renderVar($result);
+            }
+
+        }
+
+        return "Missing viewName or displayId parameter";
     }
 
 }
