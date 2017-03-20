@@ -279,16 +279,21 @@ class Food extends \Twig_Extension
             ->getStorage('media')
             ->load(array_values($prev_or_next)[0]);
 
-        $all    = $gallery->get('field_media_images');
-        $file   = $all[0]->entity->field_image->entity->getFileUri();
+        $all = $gallery->get('field_media_images');
+        if(isset($all[0]))
+        {
+            $file   = $all[0]->entity->field_image->entity->getFileUri();
 
-        return [
-            'id'        => $gallery->id(),
-            'title'     => $gallery->label(),
-            'path'      => $gallery->toUrl()->toString(),
-            'images'    => $all,
-            'thumb'     => ImageStyle::load($thumbnail)->buildUrl($file)
-        ];
+            return [
+                'id'        => $gallery->id(),
+                'title'     => $gallery->label(),
+                'path'      => $gallery->toUrl()->toString(),
+                'images'    => $all,
+                'thumb'     => ImageStyle::load($thumbnail)->buildUrl($file)
+            ];
+        }
+
+        return null;
     }
 
     /**
