@@ -106,7 +106,7 @@ class Food extends \Twig_Extension
     {
         $rendered        = $this->coreTwigExtension->renderVar($string);
         $withoutComments = preg_replace('/<!--(.|\s)*?-->/', '', $rendered);
-        $naked           = strip_tags(str_replace(["\n", "\r"], '', $withoutComments));
+        $naked           = strip_tags(str_replace(["\n", "\r"], '', html_entity_decode($withoutComments, ENT_QUOTES, 'UTF-8')));
 
         return $naked;
     }
@@ -122,7 +122,7 @@ class Food extends \Twig_Extension
     {
         $field = $this->renderNakedField($string);
 
-        if(strlen($field) > $max && $max > 0)
+        if(mb_strlen($field) > $max && $max > 0)
         {
             $break  = "*-*-*";
             $wrap   = wordwrap($field, $max, $break);
