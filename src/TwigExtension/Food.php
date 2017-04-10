@@ -2,18 +2,19 @@
 
 namespace Drupal\twig_food\TwigExtension;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface,
-    Drupal\Core\Render\RendererInterface,
-    Drupal\Core\Template\TwigExtension,
-    Drupal\image\Entity\ImageStyle,
-    Drupal\file\Entity\File,
-    Drupal\media_entity\Entity\Media;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\image\Entity\ImageStyle;
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Routing\UrlGeneratorInterface;
+use Drupal\Core\Theme\ThemeManagerInterface;
+
 
 /**
  * @package Twig Food
  * @author Michal Landsman <michal.landsman@burda.cz>
  */
-class Food extends \Twig_Extension
+class Food extends \Drupal\Core\Template\TwigExtension
 {
     /**
      * The entity type manager.
@@ -22,24 +23,17 @@ class Food extends \Twig_Extension
     protected $entityTypeManager;
 
     /**
-     * @var TwigExtension
-     */
-    protected $coreTwigExtension;
-
-    /**
      * @var string
      */
     protected $themeName;
 
-    /**
-     * @param EntityTypeManagerInterface $entity_type_manager
-     * @param RendererInterface $renderer
-     */
-    public function __construct(EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer)
+
+    public function __construct(RendererInterface $renderer, UrlGeneratorInterface $url_generator, ThemeManagerInterface $theme_manager, DateFormatterInterface $date_formatter, EntityTypeManagerInterface $entity_type_manager)
     {
         $this->entityTypeManager = $entity_type_manager;
-        $this->coreTwigExtension = new TwigExtension($renderer);
         $this->themeName         = \Drupal::theme()->getActiveTheme()->getName();
+
+        parent::__construct($renderer, $url_generator, $theme_manager, $date_formatter, $date_formatter);
     }
 
     /**
@@ -104,7 +98,7 @@ class Food extends \Twig_Extension
      */
     public function renderNakedField($string)
     {
-        $rendered        = $this->coreTwigExtension->renderVar($string);
+        $rendered        = $this->renderVar($string);
         $withoutComments = preg_replace('/<!--(.|\s)*?-->/', '', $rendered);
         $naked           = strip_tags(str_replace(["\n", "\r"], '', html_entity_decode($withoutComments, ENT_QUOTES, 'UTF-8')));
 
@@ -151,6 +145,8 @@ class Food extends \Twig_Extension
      */
     public function loadRegion($id)
     {
+        $some = new Drupal\Core\Entity\EntityTypeManagerInterface();
+
         $blocks = $this->entityTypeManager->getStorage('block')->loadByProperties([
             'region' => $id,
             'theme'  => $this->themeName
@@ -308,7 +304,7 @@ class Food extends \Twig_Extension
             $result = views_embed_view($viewName, $displayId);
             if($result)
             {
-                return $this->coreTwigExtension->renderVar($result);
+                return $this->renderVar($result);
             }
 
         }
