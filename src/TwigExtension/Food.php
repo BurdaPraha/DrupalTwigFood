@@ -145,8 +145,6 @@ class Food extends \Drupal\Core\Template\TwigExtension
      */
     public function loadRegion($id)
     {
-        $some = new Drupal\Core\Entity\EntityTypeManagerInterface();
-
         $blocks = $this->entityTypeManager->getStorage('block')->loadByProperties([
             'region' => $id,
             'theme'  => $this->themeName
