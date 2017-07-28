@@ -81,7 +81,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
     public function renderSVG($path)
     {
         $theme      = drupal_get_path("theme", $this->themeName);
-        $fullPath   = "{$theme}/images/{$path}";
+        $fullPath   = "{$theme}/{$path}";
         $handle     = fopen($fullPath, "r");
         $contents   = fread($handle, filesize($fullPath));
         fclose($handle);
