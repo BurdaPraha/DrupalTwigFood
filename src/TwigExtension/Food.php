@@ -12,7 +12,7 @@ use Drupal\Core\Theme\ThemeManagerInterface;
 
 /**
  * @package Twig Food
- * @author Michal Landsman <michal.landsman@burda.cz>
+ * @author Michal Landsman <landsman@studioart.cz>
  */
 class Food extends \Drupal\Core\Template\TwigExtension
 {
@@ -22,19 +22,35 @@ class Food extends \Drupal\Core\Template\TwigExtension
      */
     protected $entityTypeManager;
 
-    /**
+
+    /**á
      * @var string
      */
     protected $themeName;
 
 
-    public function __construct(RendererInterface $renderer, UrlGeneratorInterface $url_generator, ThemeManagerInterface $theme_manager, DateFormatterInterface $date_formatter, EntityTypeManagerInterface $entity_type_manager)
-    {
+    /**
+     * @param RendererInterface $renderer
+     * @param UrlGeneratorInterface $url_generator
+     * @param ThemeManagerInterface $theme_manager
+     * @param DateFormatterInterface $date_formatter
+     * @param EntityTypeManagerInterface $entity_type_manager
+     */
+    public function __construct
+    (
+        RendererInterface $renderer,
+        UrlGeneratorInterface $url_generator,
+        ThemeManagerInterface $theme_manager,
+        DateFormatterInterface $date_formatter,
+        EntityTypeManagerInterface $entity_type_manager
+    ){
         $this->entityTypeManager = $entity_type_manager;
         $this->themeName         = $theme_manager->getActiveTheme()->getName();
 
+
         parent::__construct($renderer, $url_generator, $theme_manager, $date_formatter, $date_formatter);
     }
+
 
     /**
      * Gets a unique identifier for this Twig extension.
@@ -43,6 +59,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
     {
         return 'twig_food.twig_extension';
     }
+
 
     /**
      * Generate a list of all twig functions
@@ -62,6 +79,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
         ];
     }
 
+
     /**
      * Generates a list of all Twig filters that this extension defines.
      */
@@ -73,6 +91,24 @@ class Food extends \Drupal\Core\Template\TwigExtension
         ];
     }
 
+
+    /**
+     * Return full path used in macro, supports dynamic paths like: '@marianne/images/image.svg' for child themes
+     * @param $string
+     * @return string
+     */
+    public function themeFullPath($string)
+    {
+        $s      = explode('/', $string);
+        $f      = strpos($s[0], '@') !== false ? str_replace('@', '', $s[0]) : '';
+        $s[0]   = drupal_get_path("theme", !empty($f) ? $f : $this->themeName);
+        $p      = implode('/', $s);
+
+
+        return $p;
+    }
+
+
     /**
      * Return SVG source code as string to Twig - usage: {{ svg('bgCarousel.svg')|raw }}
      * @param $path
@@ -80,14 +116,15 @@ class Food extends \Drupal\Core\Template\TwigExtension
      */
     public function renderSVG($path)
     {
-        $theme      = drupal_get_path("theme", $this->themeName);
-        $fullPath   = "{$theme}/{$path}";
+        $fullPath   = $this->themeFullPath($path);
         $handle     = fopen($fullPath, "r");
         $contents   = fread($handle, filesize($fullPath));
         fclose($handle);
 
+
         return $contents;
     }
+
 
     /**
      * Make render of var, removes html comments from string, do strip_tags, remove new lines => naked string
@@ -102,8 +139,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
         $withoutComments = preg_replace('/<!--(.|\s)*?-->/', '', $rendered);
         $naked           = strip_tags(str_replace(["\n", "\r"], '', html_entity_decode($withoutComments, ENT_QUOTES, 'UTF-8')));
 
+
         return $naked;
     }
+
 
     /**
      * Check string length and return him summary or in original
@@ -124,8 +163,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
             $string = (isset($items[0]) ? $items[0] : "") . ($dots ? "..." : "");
         }
 
+
         return $string;
     }
+
 
     /**
      * Return array of selected block
@@ -135,8 +176,11 @@ class Food extends \Drupal\Core\Template\TwigExtension
     public function loadBlock($id)
     {
         $block = $this->entityTypeManager->getStorage('block')->load($id);
+
+
         return $block ? $this->entityTypeManager->getViewBuilder('block')->view($block) : '';
     }
+
 
     /**
      * Render region by id
@@ -156,8 +200,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
             $result[] = $this->loadBlock($id);
         }
 
+
         return $result;
     }
+
 
     /**
      * Prev gallery
@@ -170,6 +216,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
         return $this->getMediaData($id, '<', 'DESC', $thumbnail);
     }
 
+
     /**
      * Next gallery
      * @param $id
@@ -180,6 +227,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
     {
         return $this->getMediaData($id, '>', 'ASC', $thumbnail);
     }
+
 
     /**
      * Load gallery images
@@ -194,10 +242,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
             ->load($id);
 
         $images = $gallery->get('field_media_images');
+        $result = [];
 
         if($images)
         {
-            $result = [];
             foreach($images as $image)
             {
                 $mid        = $image->entity->id();
@@ -211,12 +259,12 @@ class Food extends \Drupal\Core\Template\TwigExtension
                     'thumb' => ImageStyle::load($thumbnail)->buildUrl($imageUrl),
                 ];
             }
-
-            return $result;
         }
 
-        return [];
+
+        return $result;
     }
+
 
     /**
      * Load main node object anywhere
@@ -231,8 +279,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
             return $returnId ? $node->id() : $node;
         }
 
+
         return null;
     }
+
 
     /**
      * Load one gallery
@@ -287,8 +337,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
             ];
         }
 
+
         return null;
     }
+
 
     /**
      * @param $viewName
@@ -307,7 +359,9 @@ class Food extends \Drupal\Core\Template\TwigExtension
 
         }
 
+
         return "Missing viewName or displayId parameter";
     }
+
 
 }
