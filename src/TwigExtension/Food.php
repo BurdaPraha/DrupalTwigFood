@@ -100,9 +100,10 @@ class Food extends \Drupal\Core\Template\TwigExtension
     public function themeFullPath($string)
     {
         $s      = explode('/', $string);
-        $f      = strpos($s[0], '@') !== false ? str_replace('@', '', $s[0]) : '';
+        $t      = strpos($s[0], '@') !== false;
+        $f      = $t ? str_replace('@', '', $s[0]) : '';
         $s[0]   = drupal_get_path("theme", !empty($f) ? $f : $this->themeName);
-        $p      = implode('/', $s);
+        $p      = $t ? implode('/', $s) : $s[0] . '/' . $string;
 
 
         return $p;
