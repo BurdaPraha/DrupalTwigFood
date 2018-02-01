@@ -12,7 +12,7 @@
   "support": {
     "issues": "https://github.com/BurdaPraha/DrupalTwigFood/issues"
   },
-  "license": "GPL-2.0+",
+  "license": "MIT",
   "minimum-stability": "dev",
   "require": {}
 }
