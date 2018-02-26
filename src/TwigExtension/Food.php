@@ -141,7 +141,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
         $naked           = strip_tags(str_replace(["\n", "\r"], '', html_entity_decode($withoutComments, ENT_QUOTES, 'UTF-8')));
 
 
-        return $naked;
+        return trim($naked);
     }
 
 
@@ -296,7 +296,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
     public function getMediaData($currentId, $dateComparator, $sortOrder, $thumbnail)
     {
         /**
-         * @var \Drupal\media_entity\Entity\Media
+         * @var $current \Drupal\media_entity\Entity\Media
          */
         $current = $this->entityTypeManager
             ->getStorage('media')
