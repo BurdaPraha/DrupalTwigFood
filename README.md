@@ -24,15 +24,6 @@ this function offers print all block of the region anywhere you need: ```{{ load
 #### - load_main_node($returnId = true)
 solving problem with getting node id from anywhere template when you need it ```{{ load_main_node() }}```
 
-#### - load_gallery_prev($currentGalleryId, $thumbnailStyle = 'thumbnail')
-array with previous media gallery: ```{{ load_gallery_prev(2) }}```
-
-#### - load_gallery_next($currentGalleryId, $thumbnailStyle = 'thumbnail')
-array with next media media: ```{{ load_gallery_next(1) }}```
-
-#### - load_gallery_thumbs($galleryId, $thumbnailStyle = 'thumbnail')
-array with images from gallery: ```{{ load_gallery_thumbs(5) }}```
-
 ------
 
 ### Filters
