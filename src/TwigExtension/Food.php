@@ -48,7 +48,7 @@ class Food extends \Drupal\Core\Template\TwigExtension
         $this->themeName         = $theme_manager->getActiveTheme()->getName();
 
 
-        parent::__construct($renderer, $url_generator, $theme_manager, $date_formatter, $date_formatter);
+        parent::__construct($renderer, $url_generator, $theme_manager, $date_formatter, NULL);
     }
 
 
